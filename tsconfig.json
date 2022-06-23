@@ -1,31 +1,24 @@
 {
-    "extends": "@tsconfig/node18/tsconfig.json",
-    "compilerOptions": {
-        "baseUrl": ".",
-        "outDir": "./dist",
-        "paths": {
-            "src/*": [
-                "src/*"
-            ]
-        },
-        "preserveConstEnums": true,
-        "allowSyntheticDefaultImports": true
+  "extends": "@tsconfig/node18/tsconfig.json",
+  "compilerOptions": {
+    "baseUrl": ".",
+    "outDir": "./dist",
+    "paths": {
+      "src/*": ["src/*"]
     },
-    "exclude": [
-        "node_modules"
-    ],
-    "include": [
-        "src/**/*",
-        ".eslintrc.js",
-        "jest.config.js",
-        "lint-staged.config.js"
-    ],
-    "ts-node": {
-        "files": true,
-        "require": [
-            "tsconfig-paths/register",
-            "dotenv/config"
-        ],
-        "transpileOnly": true
-    }
+    "preserveConstEnums": true,
+    "allowSyntheticDefaultImports": true
+  },
+  "exclude": ["node_modules"],
+  "include": [
+    "src/**/*",
+    ".eslintrc.js",
+    "jest.config.js",
+    "lint-staged.config.js"
+  ],
+  "ts-node": {
+    "files": true,
+    "require": ["tsconfig-paths/register", "dotenv/config"],
+    "transpileOnly": true
+  }
 }
