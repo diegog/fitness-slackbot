@@ -1,0 +1,72 @@
+{
+  "teamDomain": "yourDomainHere",
+  "channelName": "general",
+  "channelId": "channelIdHere",
+
+  "officeHours": {
+    "on": false,
+    "begin": 9,
+    "end": 17
+  },
+
+  "debug": false,
+
+  "callouts": {
+    "timeBetween": {
+      "minTime": 17,
+      "maxTime": 23,
+      "units": "minutes"
+    }
+  },
+
+  "exercises": [
+    {
+      "id": 0,
+      "name": "Push-ups",
+      "times": 20,
+      "units": "rep",
+      "positiveStmt": "Atta boy!",
+      "negativeStmt": "Shoddy work"
+    },
+    {
+      "id": 1,
+      "name": "Planks",
+      "times": 60,
+      "units": "second",
+      "positiveStmt": "Well, look at you go!",
+      "negativeStmt": "Walk the plank ye scallywag"
+    },
+    {
+      "id": 2,
+      "name": "Wall Sit",
+      "times": 50,
+      "units": "second",
+      "positiveStmt": "Lovely Jubbly",
+      "negativeStmt": "Epic Fail"
+    },
+    {
+      "id": 3,
+      "name": "Chair-Dips",
+      "times": 30,
+      "units": "rep",
+      "positiveStmt": "Nothing can stop you now!",
+      "negativeStmt": "Dead-end job"
+    },
+    {
+      "id": 4,
+      "name": "Calf Raises",
+      "times": 30,
+      "units": "rep",
+      "positiveStmt": "Nailed it!",
+      "negativeStmt": "Not have a hope in hell!"
+    },
+    {
+      "id": 5,
+      "name": "Lunges",
+      "times": 20,
+      "units": "rep",
+      "positiveStmt": "You Rock!",
+      "negativeStmt": "That was miserable"
+    }
+  ]
+}
