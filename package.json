@@ -1,0 +1,17 @@
+{
+  "name": "fitness-slackbot",
+  "version": "1.0.0",
+  "description": "A bot that prompts random users from a slack channel to do a bit of exercise.",
+  "main": "src/app.ts",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@slack/bolt": "^3.11.3",
+    "@tsconfig/node18": "^1.0.1",
+    "dotenv": "^16.0.1",
+    "tsconfig-paths": "^4.0.0"
+  }
+}
