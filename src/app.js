@@ -1,5 +1,6 @@
 import dotenv from 'dotenv';
 import bolt from '@slack/bolt';
+import schedule from 'node-schedule';
 const { App } = bolt;
 
 dotenv.config();
@@ -7,26 +8,30 @@ dotenv.config();
 // Initializes your app with your bot token and signing secret
 const app = new App({
   appToken: process.env.SLACK_APP_TOKEN,
+  channel: process.env.SLACK_CHANNEL_ID,
   signingSecret: process.env.SLACK_SIGNING_SECRET,
   socketMode: true,
   token: process.env.SLACK_BOT_TOKEN,
 });
 
-// Listens to incoming messages that contain "hello"
-app.message('hello', async ({ message, say }) => {
-  // say() sends a message to the channel where the event was triggered
-  await say(`<@${message.user}> was chosen to do exercise!`);
+const promptSomeoneToDoExercise = async () => {
+  const user = await getRandomUser();
 
-  // Send messages only visible to users that were chosen
+  await app.client.chat.postMessage({
+    channel: process.env.SLACK_CHANNEL_ID,
+    text: `<@${user}> was chosen to do exercise!`,
+  });
+
+  // Send messages only visible to the user that was chosen.
   await app.client.chat.postEphemeral({
-    channel: message.channel,
-    user: message.user,
+    user: user,
+    channel: process.env.SLACK_CHANNEL_ID,
     blocks: [
       {
         type: 'section',
         text: {
           type: 'mrkdwn',
-          text: `Hey there <@${message.user}>!`,
+          text: `Hey there <@${user}>!`,
         },
       },
       {
@@ -56,14 +61,32 @@ app.message('hello', async ({ message, say }) => {
       },
     ],
     text: `Error loading data...`,
-    delete_original: true,
   });
+};
+
+const getRandomUser = async () => {
+  const { user_id: bot_id } = await app.client.auth.test();
+
+  let { members } = await app.client.conversations.members({
+    channel: process.env.SLACK_CHANNEL_ID,
+  });
+  // remove bot user from members list
+  members = members.filter((m) => m != bot_id);
+
+  // return random member from channel
+  return members[Math.floor(Math.random() * members.length)];
+};
+
+schedule.scheduleJob('*/1 * * * *', async () => {
+  console.log('prompting...');
+  await promptSomeoneToDoExercise();
 });
 
 app.action('accept', async ({ body, ack, say, respond }) => {
   await ack();
-  await console.log(body);
   await say(`<@${body.user.id}> accepted the challenge`);
+
+  // Delete ephemeral message
   await respond({
     response_type: 'ephemeral',
     text: '',
@@ -74,8 +97,9 @@ app.action('accept', async ({ body, ack, say, respond }) => {
 
 app.action('reject', async ({ body, ack, say, respond }) => {
   await ack();
-  console.log(body);
   await say(`<@${body.user.id}> rejected the challenge`);
+
+  // Delete ephemeral message
   await respond({
     response_type: 'ephemeral',
     text: '',
