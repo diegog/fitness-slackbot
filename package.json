@@ -9,7 +9,7 @@
     "format": "prettier --write .",
     "prepare": "husky install"
   },
-  "type": "commonjs",
+  "type": "module",
   "author": "",
   "license": "ISC",
   "lint-staged": {

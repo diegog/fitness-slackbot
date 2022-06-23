@@ -60,14 +60,28 @@ app.message('hello', async ({ message, say }) => {
   });
 });
 
-app.action('accept', async ({ body, ack }) => {
+app.action('accept', async ({ body, ack, say, respond }) => {
   await ack();
+  await console.log(body);
   await say(`<@${body.user.id}> accepted the challenge`);
+  await respond({
+    response_type: 'ephemeral',
+    text: '',
+    replace_original: true,
+    delete_original: true,
+  });
 });
 
-app.action('reject', async ({ body, ack, say }) => {
+app.action('reject', async ({ body, ack, say, respond }) => {
   await ack();
+  console.log(body);
   await say(`<@${body.user.id}> rejected the challenge`);
+  await respond({
+    response_type: 'ephemeral',
+    text: '',
+    replace_original: true,
+    delete_original: true,
+  });
 });
 
 (async () => {
