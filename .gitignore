@@ -1,5 +1,5 @@
 # https://github.com/github/gitignore/blob/main/Node.gitignore
-.idea
+.idea/
 
 # Logs
 logs
