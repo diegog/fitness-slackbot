@@ -1,72 +1,46 @@
 {
-  "teamDomain": "yourDomainHere",
-  "channelName": "general",
-  "channelId": "channelIdHere",
-
-  "officeHours": {
-    "on": false,
-    "begin": 9,
-    "end": 17
-  },
-
-  "debug": false,
-
-  "callouts": {
-    "timeBetween": {
-      "minTime": 17,
-      "maxTime": 23,
-      "units": "minutes"
-    }
-  },
-
   "exercises": [
     {
       "id": 0,
       "name": "Push-ups",
-      "times": 20,
-      "units": "rep",
-      "positiveStmt": "Atta boy!",
-      "negativeStmt": "Shoddy work"
+      "minReps": 15,
+      "maxReps": 20,
+      "units": "reps"
     },
     {
       "id": 1,
       "name": "Planks",
-      "times": 60,
-      "units": "second",
-      "positiveStmt": "Well, look at you go!",
-      "negativeStmt": "Walk the plank ye scallywag"
+      "minReps": 40,
+      "maxReps": 60,
+      "units": "seconds"
     },
     {
       "id": 2,
       "name": "Wall Sit",
-      "times": 50,
-      "units": "second",
-      "positiveStmt": "Lovely Jubbly",
-      "negativeStmt": "Epic Fail"
+      "minReps": 35,
+      "maxReps": 50,
+      "units": "seconds"
     },
     {
       "id": 3,
       "name": "Chair-Dips",
-      "times": 30,
-      "units": "rep",
-      "positiveStmt": "Nothing can stop you now!",
-      "negativeStmt": "Dead-end job"
+      "minReps": 20,
+      "maxReps": 30,
+      "units": "reps"
     },
     {
       "id": 4,
       "name": "Calf Raises",
-      "times": 30,
-      "units": "rep",
-      "positiveStmt": "Nailed it!",
-      "negativeStmt": "Not have a hope in hell!"
+      "minReps": 20,
+      "maxReps": 30,
+      "units": "reps"
     },
     {
       "id": 5,
       "name": "Lunges",
-      "times": 20,
-      "units": "rep",
-      "positiveStmt": "You Rock!",
-      "negativeStmt": "That was miserable"
+      "minReps": 12,
+      "maxReps": 20,
+      "units": "reps"
     }
   ]
 }
