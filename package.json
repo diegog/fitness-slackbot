@@ -4,6 +4,7 @@
   "description": "A bot that prompts random users from a slack channel to do a bit of exercise.",
   "main": "src/app.ts",
   "scripts": {
+    "start": "node src/app.js",
     "test": "echo \"Error: no test specified\" && exit 1",
     "lint": "eslint .",
     "format": "prettier --write .",

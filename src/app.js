@@ -13,7 +13,6 @@ const app = new App({
   appToken: process.env.SLACK_APP_TOKEN,
   channel: process.env.SLACK_CHANNEL_ID,
   signingSecret: process.env.SLACK_SIGNING_SECRET,
-  socketMode: true,
   token: process.env.SLACK_BOT_TOKEN,
 });
 
@@ -128,12 +127,12 @@ const goodNight = async () => {
 };
 
 // Good Morning message
-schedule.scheduleJob('15 09 * * *', async () => {
+schedule.scheduleJob('* 09 * * *', async () => {
   await goodMorning();
 });
 
 //
-schedule.scheduleJob('*/1 09-17 * * *', async () => {
+schedule.scheduleJob('*/30 09-17 * * *', async () => {
   const user = await getRandomUser();
 
   const current = inProgress[user];
