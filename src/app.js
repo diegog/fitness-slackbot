@@ -30,7 +30,7 @@ const promptUserToDoExercise = async (user) => {
   });
 
   // Send messages only visible to the user that was chosen.
-  await app.client.chat.postEphemeral({
+  const message = await app.client.chat.postEphemeral({
     user,
     channel: process.env.SLACK_CHANNEL_ID,
     blocks: [
@@ -71,7 +71,7 @@ const promptUserToDoExercise = async (user) => {
   });
 
   // add user and exercise info to inProgress Object
-  inProgress[user] = { exercise, reps };
+  inProgress[user] = { exercise, reps, ts: message.message_ts };
 };
 
 const getRandomUser = async () => {
@@ -113,26 +113,43 @@ const sendFailureMessage = async (user) => {
   delete inProgress[user];
 };
 
-schedule.scheduleJob('*/1 * * * *', async () => {
+const goodMorning = async () => {
+  await app.client.chat.postMessage({
+    channel: process.env.SLACK_CHANNEL_ID,
+    text: `Goodmorning <!here>! Remember to stretch and drink plenty of water today!`,
+  });
+};
+
+const goodNight = async () => {
+  await app.client.chat.postMessage({
+    channel: process.env.SLACK_CHANNEL_ID,
+    text: `Goodnight <!here>! Remember to disconnect and some point and try to get a good night's rest!`,
+  });
+};
+
+// Good Morning message
+schedule.scheduleJob('15 09 * * *', async () => {
+  await goodMorning();
+});
+
+//
+schedule.scheduleJob('*/1 09-17 * * *', async () => {
   const user = await getRandomUser();
 
-  if (inProgress) {
-    await Promise.all(
-      Object.keys(inProgress).map(async (key) => {
-        // add user and exercise info to inProgress Object
-        if (inProgress[user]) {
-          await sendFailureMessage(key);
-        }
-      })
-    );
+  const current = inProgress[user];
+  if (current) {
+    await sendFailureMessage(user);
   }
 
   await promptUserToDoExercise(user);
 });
 
+schedule.scheduleJob('* 17 * * *', async () => {
+  await goodNight();
+});
+
 app.action('accept', async ({ body, ack, respond }) => {
   await ack();
-  console.log(body);
   if (inProgress[body.user.id]) {
     await sendSuccessMessage(body.user.id);
   }
@@ -148,7 +165,10 @@ app.action('accept', async ({ body, ack, respond }) => {
 
 app.action('reject', async ({ body, ack, respond }) => {
   await ack();
-  if (inProgress[body.user.id]) {
+  const current = inProgress[body.user.id];
+
+  // if responding to current message
+  if (current && body.container.message_ts === current.ts) {
     await sendFailureMessage(body.user.id);
   }
 
