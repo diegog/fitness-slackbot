@@ -17,9 +17,7 @@ const app = new App({
   token: process.env.SLACK_BOT_TOKEN,
 });
 
-const promptSomeoneToDoExercise = async () => {
-  const user = await getRandomUser();
-
+const promptUserToDoExercise = async (user) => {
   // Get random exercise / reps or seconds
   const exercise = exercises[Math.floor(Math.random() * exercises.length)];
   const reps = Math.floor(
@@ -116,21 +114,28 @@ const sendFailureMessage = async (user) => {
 };
 
 schedule.scheduleJob('*/1 * * * *', async () => {
+  const user = await getRandomUser();
+
   if (inProgress) {
     await Promise.all(
       Object.keys(inProgress).map(async (key) => {
         // add user and exercise info to inProgress Object
-        await sendFailureMessage(key);
+        if (inProgress[user]) {
+          await sendFailureMessage(key);
+        }
       })
     );
   }
 
-  await promptSomeoneToDoExercise();
+  await promptUserToDoExercise(user);
 });
 
 app.action('accept', async ({ body, ack, respond }) => {
   await ack();
-  await sendSuccessMessage(body.user.id);
+  console.log(body);
+  if (inProgress[body.user.id]) {
+    await sendSuccessMessage(body.user.id);
+  }
 
   // Delete ephemeral message
   await respond({
@@ -143,7 +148,9 @@ app.action('accept', async ({ body, ack, respond }) => {
 
 app.action('reject', async ({ body, ack, respond }) => {
   await ack();
-  await sendFailureMessage(body.user.id);
+  if (inProgress[body.user.id]) {
+    await sendFailureMessage(body.user.id);
+  }
 
   // Delete ephemeral message
   await respond({
