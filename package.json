@@ -9,7 +9,6 @@
     "format": "prettier --write .",
     "prepare": "husky install"
   },
-  "type": "module",
   "author": "",
   "license": "ISC",
   "lint-staged": {

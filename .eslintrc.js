@@ -11,5 +11,6 @@ module.exports = {
   rules: {
     semi: [2, 'always'],
     'comma-dangle': 0,
+    quotes: [2, 'single', { allowTemplateLiterals: true }]
   },
 };

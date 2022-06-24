@@ -1,9 +1,12 @@
-import dotenv from 'dotenv';
-import bolt from '@slack/bolt';
-import schedule from 'node-schedule';
-const { App } = bolt;
+const dotenv = require('dotenv');
+const { App } = require('@slack/bolt');
+const schedule = require('node-schedule');
+const { exercises } = require('./exercise.json');
+const { negativeStmts } = require('./negativeStmt.json');
+const { positiveStmts } = require('./positiveStmt.json');
 
 dotenv.config();
+const inProgress = {};
 
 // Initializes your app with your bot token and signing secret
 const app = new App({
@@ -17,21 +20,27 @@ const app = new App({
 const promptSomeoneToDoExercise = async () => {
   const user = await getRandomUser();
 
+  // Get random exercise / reps or seconds
+  const exercise = exercises[Math.floor(Math.random() * exercises.length)];
+  const reps = Math.floor(
+    Math.random() * (exercise.maxReps - exercise.minReps) + exercise.minReps
+  );
+
   await app.client.chat.postMessage({
     channel: process.env.SLACK_CHANNEL_ID,
-    text: `<@${user}> was chosen to do exercise!`,
+    text: `<@${user}> was chosen to do ${reps} ${exercise.units} of ${exercise.name}!`,
   });
 
   // Send messages only visible to the user that was chosen.
   await app.client.chat.postEphemeral({
-    user: user,
+    user,
     channel: process.env.SLACK_CHANNEL_ID,
     blocks: [
       {
         type: 'section',
         text: {
           type: 'mrkdwn',
-          text: `Hey there <@${user}>!`,
+          text: `Hey there <@${user}>! Have you done your ${reps} ${exercise.units} of ${exercise.name}?`,
         },
       },
       {
@@ -42,7 +51,7 @@ const promptSomeoneToDoExercise = async () => {
             style: 'primary',
             text: {
               type: 'plain_text',
-              text: 'Accept',
+              text: 'Yes! 💪',
               emoji: true,
             },
             action_id: 'accept',
@@ -52,7 +61,7 @@ const promptSomeoneToDoExercise = async () => {
             style: 'danger',
             text: {
               type: 'plain_text',
-              text: 'Reject',
+              text: `I can't 😫`,
               emoji: true,
             },
             action_id: 'reject',
@@ -62,29 +71,66 @@ const promptSomeoneToDoExercise = async () => {
     ],
     text: `Error loading data...`,
   });
+
+  // add user and exercise info to inProgress Object
+  inProgress[user] = { exercise, reps };
 };
 
 const getRandomUser = async () => {
-  const { user_id: bot_id } = await app.client.auth.test();
+  const { user_id: botId } = await app.client.auth.test();
 
   let { members } = await app.client.conversations.members({
     channel: process.env.SLACK_CHANNEL_ID,
   });
   // remove bot user from members list
-  members = members.filter((m) => m != bot_id);
+  members = members.filter((m) => m !== botId);
 
   // return random member from channel
   return members[Math.floor(Math.random() * members.length)];
 };
 
+const sendSuccessMessage = async (user) => {
+  const statement =
+    positiveStmts[Math.floor(Math.random() * positiveStmts.length)];
+  const { exercise, reps } = inProgress[user];
+  await app.client.chat.postMessage({
+    channel: process.env.SLACK_CHANNEL_ID,
+    text: `<@${user}> has completed their ${reps} ${exercise.units} of ${exercise.name}! ${statement}`,
+  });
+
+  // Remove data from inProgress
+  delete inProgress[user];
+};
+
+const sendFailureMessage = async (user) => {
+  const statement =
+    negativeStmts[Math.floor(Math.random() * negativeStmts.length)];
+  const { exercise, reps } = inProgress[user];
+
+  await app.client.chat.postMessage({
+    channel: process.env.SLACK_CHANNEL_ID,
+    text: `<@${user}> failed to complete their ${reps} ${exercise.units} of ${exercise.name}. ${statement}`,
+  });
+  // Remove data from inProgress
+  delete inProgress[user];
+};
+
 schedule.scheduleJob('*/1 * * * *', async () => {
-  console.log('prompting...');
+  if (inProgress) {
+    await Promise.all(
+      Object.keys(inProgress).map(async (key) => {
+        // add user and exercise info to inProgress Object
+        await sendFailureMessage(key);
+      })
+    );
+  }
+
   await promptSomeoneToDoExercise();
 });
 
-app.action('accept', async ({ body, ack, say, respond }) => {
+app.action('accept', async ({ body, ack, respond }) => {
   await ack();
-  await say(`<@${body.user.id}> accepted the challenge`);
+  await sendSuccessMessage(body.user.id);
 
   // Delete ephemeral message
   await respond({
@@ -95,9 +141,9 @@ app.action('accept', async ({ body, ack, say, respond }) => {
   });
 });
 
-app.action('reject', async ({ body, ack, say, respond }) => {
+app.action('reject', async ({ body, ack, respond }) => {
   await ack();
-  await say(`<@${body.user.id}> rejected the challenge`);
+  await sendFailureMessage(body.user.id);
 
   // Delete ephemeral message
   await respond({
